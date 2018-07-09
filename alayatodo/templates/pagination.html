@@ -1,0 +1,45 @@
+<ul class="pagination">
+  
+  {% if todos.page %}
+  {% if todos.page-1 > 0 %}
+  <li>
+	<a href="{{ url_for('todos', page=todos.page-1) }}" aria-label="Previous">
+	  <span aria-hidden="true">&laquo;</span>
+	</a>
+  </li>
+  {% else %}
+  <li class="disabled">
+	<a href="#" aria-label="Previous">
+	  <span aria-hidden="true">&laquo;</span>
+	</a>
+  </li>
+  {% endif %}
+  
+  {% for page in todos.iter_pages() %}
+  {% if page == todos.page %}
+  <li class="active">	  
+	<a href="{{ url_for('todos', page=page) }}">{{ page }}</a>
+  </li>
+  {% else %}
+  <li >	  
+	<a href="{{ url_for('todos', page=page) }}">{{ page }}</a>
+  </li>
+  {% endif %}
+  {% endfor %}
+  {% if todos.page+1 <= todos.pages %}
+  <li>
+	<a href="{{ url_for('todos', page=todos.page+1) }}" aria-label="Next">
+	  <span aria-hidden="true">&raquo;</span>
+	</a>
+  </li>
+  {% else %}
+  <li class="disabled">
+	<a href="#" aria-label="Next">
+	  <span aria-hidden="true">&raquo;</span>
+	</a>
+  </li>
+  {% endif %}
+  {% endif %}
+  
+</ul>
+

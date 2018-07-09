@@ -1,21 +1,36 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="col-md-4 col-md-offset-4">
-    <h1>Todo:</h1>
-    <table class="table table-striped">
-        <th>#</th><th>User</th><th>Description</th><th></th>
-        <tr>
-            <td>{{ todo.id }}</td>
-            <td>{{ todo.user_id }}</td>
-            <td>{{ todo.description }}</td>
-            <td>
-                <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
-                    <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove glyphicon-white"></span></button>
-                </form>
-            </td>
-        </tr>
-    </table>
+
+<h2></h2>
+
+<div class="jumbotron">
+  <h2>Todo ID: {{ todo.id }}</h2>
+  <p>Description:</p>
+  <p> {{ todo.description }}</p>
+  <div>
+	<p>Completed: 
+	  {% if not todo.is_completed %}
+  	  <input type="checkbox"
+			 onchange="toggleCompleted(this, {{ todo.id }});"/>
+      {% else %}
+  	  <input type="checkbox" checked="checked"
+			 onchange="toggleCompleted(this, {{ todo.id }});"/>
+	  {% endif %}
+	</p>
+  </div>
+  <p><small>User: {{ todo.user_id }}</small></p>
+  
+  <div class="row">
+	<a class="btn btn-primary btn-lg"
+	   href="/todo" role="button">Back</a>
+  </div>
 </div>
 
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript"
+		src="{{ url_for('static', filename='js/todo.js') }}">
+</script>
 {% endblock %}

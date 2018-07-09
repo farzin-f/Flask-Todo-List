@@ -36,55 +36,37 @@ bin/python main.py initdb
 bin/python main.py
 ```
 
-### Instructions
-
-You will be asked to improve the code of this app with the following tasks.
-
-You can complete the tasks in any order.
-
-Separate your commits by task and use the following format for your commit messages: TASK-{task number}: {meaningful message}
-
 ### Tasks
 * TASK 1: As a user I can't add a todo without a description.
+  - The confirmation is being done through JavaScript and in the
+  front-end to decrease the server traffic (ref:
+  ```static/js/todos.js```).
 * TASK 2: As a user I can mark a todo as completed.
-    - Write a database migration script in `resources/`
+  - A is_completed column added to the todo model which will be
+  updated each time the user toggle the Done checkbox. (ref: ```alaytodo/models.py```).
 * TASK 3: As a user I can view a todo in a JSON format.
-    - Ex: /todo/{id}/json => {id: 1, user_id: 1, description: "Lorem Ipsum"}
-* TASK 4: As a user I can see a confirmation message when I add/delete a todo.
+  - The todo_json has been added to the view controller in
+  ```alaytodo/views.py``` which return the JSON object.
+* TASK 4: As a user I can see a confirmation message when I add/delete
+  a todo.
+  - The confirmation messages are being handled in front-end using
+  ```showAlert()``` function which triggers for
+  addition/deletion/ and description confirmation of a todo.
 * TASK 5: As a user I can see my list of todos paginated.
-* TASK 6: Implement an ORM database access layer so we don’t have SQL in the controller code.
+* TASK 6: Implement an ORM database access layer so we don’t have SQL
+  in the controller code.
+  - Tasks 5 and 6 are done using Flask SQLAlchemy
+  extension. Models have been created in
+  ```alaytodo/models.py```. The pagination is being done
+  through the SQLAlchemy model utilities for this purpose and
+  being called in ```todos()``` function (```alaytodo/views.py```).
 
 Extra tasks:
 - Fix any bug you may find.
+  - I couldn't find any significant bug.
 - Fix any security issue you may find.
-
+  - For the password I added the encryption using werkzeug.security library.
 
 ### Documentation
 This app use [Flask](http://flask.pocoo.org/docs/0.10/).
-
-
-### How to submit your work?
-
-1. ##### First you need to fork this repository.
-![Forking a repo](/web/img/fork.png?raw=true "Forking a repo")
-
-2. ##### Then clone your fork locally.
-![Cloning a repo](/web/img/clone.png?raw=true "Cloning a repo")
-
-3. ##### Install the app locally. See the [Installation Guide] (#Installation).
-
-4. ##### Once you've completed your work, you can submit a pull-request to the remote repository.
-![ a Pull Request](/web/img/pull-request.png?raw=true "Creating a Pull Request")
-
-5. ##### Review your changes and validate.
-![Validating a Pull Request](/web/img/pull-request-review.png?raw=true "Validating a Pull Request")
-
-
-
-And you're done!
-
-
-More documentation on Github:
-* https://help.github.com/articles/fork-a-repo/
-* https://help.github.com/articles/using-pull-requests/
 

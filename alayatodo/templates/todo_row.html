@@ -1,0 +1,45 @@
+<tr>
+  <td>{{ todo.id }}</td>
+  <td>{{ todo.user_id }}</td>
+  {% if not todo.is_completed %}
+  <td>
+    <a class="description" href="{{ url_for('todo', id=todo.id) }}">
+      {{ todo.description }}
+    </a>
+  </td>
+  {% else %}
+  <td>
+    <del>
+	  <a class="description" href="{{ url_for('todo', id=todo.id) }}">
+        {{ todo.description }}
+	  </a>
+	</del>
+  </td>
+  {% endif %}
+  <td>
+    <h6>
+	  <a href="{{ url_for('todo_json', id=todo.id) }}">
+        {<small>JSON</small>}
+	  </a>
+	</h6>
+  </td>
+  
+  <td>
+    <button type="button"
+			onclick="deleteTodo(this, {{ todo.id }}, {{ todos.page }});"
+			class="btn btn-xs btn-danger">
+	  <span class="glyphicon glyphicon-remove glyphicon-white"></span>
+	</button>
+  </td>
+  {% if not todo.is_completed %}
+  <td>
+	<input type="checkbox"
+		   onchange="toggleCompleted(this, {{ todo.id }});"/>
+  </td>
+  {% else %}
+  <td>
+	<input type="checkbox" checked="checked"
+		   onchange="toggleCompleted(this, {{ todo.id }});"/>
+  </td>
+  {% endif %}
+</tr>

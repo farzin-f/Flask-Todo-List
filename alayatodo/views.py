@@ -4,9 +4,15 @@ from flask import (
     redirect,
     render_template,
     request,
-    session
+    session,
+    jsonify
+    )
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
     )
 
+from .models import db, User, Todo
 
 @app.route('/')
 def home():
@@ -25,11 +31,13 @@ def login_POST():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'";
-    cur = g.db.execute(sql % (username, password))
-    user = cur.fetchone()
-    if user:
-        session['user'] = dict(user)
+    user = User.query.filter_by(username=username).first_or_404()
+        
+    if user and check_password_hash(user.password, password):
+        session['user'] = {
+            "id": user.id,
+            "username": user.username
+            }
         session['logged_in'] = True
         return redirect('/todo')
 
@@ -45,18 +53,26 @@ def logout():
 
 @app.route('/todo/<id>', methods=['GET'])
 def todo(id):
-    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
-    todo = cur.fetchone()
+    todo = Todo.query.get_or_404(id)
     return render_template('todo.html', todo=todo)
 
+@app.route('/todo/<id>/json', methods=['GET'])
+def todo_json(id):
+    todo = Todo.query.get_or_404(id)
+
+    return todo.to_json()
+    
 
 @app.route('/todo', methods=['GET'])
-@app.route('/todo/', methods=['GET'])
-def todos():
+@app.route('/todo/page/<int:page>', methods=['GET'])
+def todos(page=1):
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
-    todos = cur.fetchall()
+
+    # getting the paginated records
+    todos = Todo.query.paginate(
+        per_page=2, page=page, error_out=True)
+
     return render_template('todos.html', todos=todos)
 
 
@@ -65,18 +81,59 @@ def todos():
 def todos_POST():
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute(
-        "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
-        % (session['user']['id'], request.form.get('description', ''))
-    )
-    g.db.commit()
-    return redirect('/todo')
+    
+    user_id = session['user']['id']
+    description = request.form.get('description')
+    page = int(request.form.get('page'))
+    
+    todo = Todo(description=description, user_id=user_id)
+    db.session.add(todo)
+    db.session.commit()
 
+    todos = Todo.query.paginate(
+        per_page=2, page=page, error_out=True)
+    # rendering the pagination template to populate the
+    # lates version for the view
+    pagination_html = render_template('pagination.html', todos=todos)
+        
+    return jsonify(pagination_html)
+    
+@app.route('/todo/<id>/update', methods=['POST'])
+@app.route('/todo/<id>/update/', methods=['POST'])
+def todo_update(id):
+    id = request.form.get('todoId')
+    is_completed = request.form.get('is_completed')
 
-@app.route('/todo/<id>', methods=['POST'])
+    todo = Todo.query.get_or_404(id)
+    todo.is_completed = is_completed
+    db.session.commit()
+    
+    return jsonify(completed=todo.is_completed)
+        
+@app.route('/todo/<id>/delete', methods=['POST'])
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
-    g.db.commit()
-    return redirect('/todo')
+
+    page = int(request.form.get('page'))
+        
+    todo = Todo.query.get_or_404(id)
+    db.session.delete(todo)
+    db.session.commit()
+
+    # getting the total number of pages after deletion
+    todos = Todo.query.paginate(
+        per_page=2, page=1, error_out=True)
+
+    # if the actual page is greater that the pages after deletion
+    # the view should display the new total pages
+    if page > todos.pages:
+        page = todos.pages
+    
+    todos = Todo.query.paginate(
+        per_page=2, page=page, error_out=True)
+    # rendering the pagination template to populate the
+    # lates version for the view
+    pagination_html = render_template('pagination.html', todos=todos)
+    
+    return jsonify(pagination_html)

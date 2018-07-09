@@ -31,23 +31,15 @@
         </div>
       </div>
     </nav>
-
-    {% for message in get_flashed_messages() %}
-      <div class="bs-example bs-example-standalone" data-example-id=dismissible-alert-js>
-        <div class="alert alert-warning alert-dismissible fade in" role=alert>
-          <button type=button class=close data-dismiss=alert aria-label=Close
-          ><span aria-hidden=true>&times;</span></button>
-          {{ message }}
-        </div>
-    {% endfor %}
-
+    
     <div class="container">
-      <div class="row">
-        {% block content %}{% endblock %}
-      </div>
+      {% block content %}{% endblock %}
     </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	
+	{% block js %}{% endblock %}
+	
   </body>
 </html>
